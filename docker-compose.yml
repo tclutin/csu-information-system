@@ -10,3 +10,24 @@ services:
       - ./data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+  api:
+    restart: always
+    build: ./app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  pgadmin4:
+    image: elestio/pgadmin:${SOFTWARE_VERSION_TAG}
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: obezyana223
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - "15432:80"
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json
+    depends_on:
+      - db

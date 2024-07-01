@@ -35,7 +35,7 @@ async def create_faq(
 
 
 @router.delete("/{faq_id}", response_model=dict, status_code=HTTPStatus.CREATED)
-async def create_faq(
+async def delete_faq(
         faq_id: int,
         faq_service: FAQService = Depends(get_faq_service),
         user=Depends(validate_auth_admin)

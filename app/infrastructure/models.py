@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, Text, BigInteger, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, BigInteger, ForeignKey, LargeBinary
 from sqlalchemy.dialects.postgresql import TIMESTAMP
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import declarative_base, relationship, backref
 
 Base = declarative_base()
 
@@ -33,6 +33,18 @@ class FAQ(Base):
     updated_at = Column(TIMESTAMP(timezone=False), nullable=False)
 
 
+class Student(Base):
+    __tablename__ = "students"
+
+    student_id = Column(BigInteger, primary_key=True)
+    group_id = Column(BigInteger, ForeignKey('groups.group_id', ondelete='CASCADE'), nullable=False)
+    tgchat_id = Column(BigInteger, unique=True, nullable=False)
+    fullname = Column(Text, nullable=False)
+    photo = Column(LargeBinary, nullable=False)
+
+    group = relationship('Group', backref=backref('students', cascade='all, delete'))
+
+
 class Group(Base):
     __tablename__ = "groups"
 
@@ -43,6 +55,7 @@ class Group(Base):
     user_count = Column(Integer, default=0, nullable=False)
     created_at = Column(TIMESTAMP(timezone=False), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=False), nullable=False)
+
     department_ref = relationship('Department', backref='groups')
     specialty_ref = relationship('Specialty', backref='groups')
 

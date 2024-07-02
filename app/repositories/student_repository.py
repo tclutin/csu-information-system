@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from select import select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from infrastructure.models import Student
@@ -11,7 +11,7 @@ class StudentRepository:
         self.session = session
 
     async def create(self, student: Student) -> Student:
-        self.session.add(Student)
+        self.session.add(student)
         await self.session.commit()
         return student
 
@@ -24,6 +24,17 @@ class StudentRepository:
         result = await self.session.execute(statement)
         students = result.scalars().all()
         return list(students)
+
+    async def get_students_by_group_id(self, group_id: str) -> List[Student]:
+        statement = select(Student).where(Student.group_id == group_id)
+        result = await self.session.execute(statement)
+        students = result.scalars().all()
+        return list(students)
+
+    async def get_student_by_id(self, student_id: int) -> Student:
+        statement = select(Student).where(Student.student_id == student_id)
+        result = await self.session.execute(statement)
+        return result.scalars().first()
 
     async def get_by_tgchat_id(self, tgchat_id: int) -> Optional[Student]:
         statement = select(Student).where(Student.tgchat_id == tgchat_id)

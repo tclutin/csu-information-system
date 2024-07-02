@@ -5,3 +5,4 @@ class CreateGroupDTO(BaseModel):
     department: str
     specialty: str
     shortname: str
+

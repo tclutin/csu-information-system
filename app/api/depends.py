@@ -9,15 +9,24 @@ from repositories.department_repository import DepartmentRepository
 from repositories.faq_repository import FAQRepository
 from repositories.group_repository import GroupRepository
 from repositories.specialty_repository import SpecialtyRepository
+from repositories.student_repository import StudentRepository
+from repositories.ticket_repository import TicketRepository
 from repositories.user_repository import UserRepository
 from services.auth_service import AuthService
 from services.department_service import DepartmentService
 from services.faq_service import FAQService
 from services.group_service import GroupService
 from services.specialty_repository import SpecialtyService
+from services.student_service import StudentService
+from services.ticket_service import TicketService
+from services.upload_service import UploadService
 from services.user_service import UserService
 
 http_bearer = HTTPBearer()
+
+
+def get_upload_service() -> UploadService:
+    return UploadService()
 
 
 def get_user_repository(session: AsyncSession = Depends(postgres_client.session_getter)) -> UserRepository:
@@ -60,6 +69,30 @@ def get_faq_repository(session: AsyncSession = Depends(postgres_client.session_g
 
 def get_faq_service(faq_repository: FAQRepository = Depends(get_faq_repository)) -> FAQService:
     return FAQService(faq_repository)
+
+
+def get_student_repository(session: AsyncSession = Depends(postgres_client.session_getter)) -> StudentRepository:
+    return StudentRepository(session)
+
+
+def get_student_service(
+        student_repository: StudentRepository = Depends(get_student_repository),
+        group_service: GroupService = Depends(get_group_service),
+        upload_service: UploadService = Depends(get_upload_service)
+) -> StudentService:
+    return StudentService(student_repository, group_service, upload_service)
+
+
+def get_ticket_repository(session: AsyncSession = Depends(postgres_client.session_getter)) -> TicketRepository:
+    return TicketRepository(session)
+
+
+def get_ticket_service(
+        ticket_repository: TicketRepository = Depends(get_ticket_repository),
+        student_service: StudentService = Depends(get_student_service),
+        upload_service: UploadService = Depends(get_upload_service)
+) -> TicketService:
+    return TicketService(ticket_repository, student_service, upload_service)
 
 
 def get_auth_service(user_service: UserService = Depends(get_user_service)) -> AuthService:

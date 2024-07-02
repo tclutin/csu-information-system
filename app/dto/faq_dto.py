@@ -7,5 +7,6 @@ class CreateFAQDTO(BaseModel):
     question: str
     answer: str
 
+
 class CreateFAQListDTO(BaseModel):
     faqs: List[CreateFAQDTO]

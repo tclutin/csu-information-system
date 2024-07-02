@@ -37,10 +37,10 @@ class Student(Base):
     __tablename__ = "students"
 
     student_id = Column(BigInteger, primary_key=True)
+    fullname = Column(Text, nullable=False)
     group_id = Column(BigInteger, ForeignKey('groups.group_id', ondelete='CASCADE'), nullable=False)
     tgchat_id = Column(BigInteger, unique=True, nullable=False)
-    fullname = Column(Text, nullable=False)
-    photo = Column(LargeBinary, nullable=False)
+    student_card = Column(Text, nullable=False)
 
     group = relationship('Group', backref=backref('students', cascade='all, delete'))
 
@@ -73,3 +73,33 @@ class User(Base):
     updated_at = Column(TIMESTAMP(timezone=False), nullable=False)
 
     role_ref = relationship('Roles', backref='users')
+
+
+class Status(Base):
+    __tablename__ = 'status'
+
+    status_name = Column(Text, primary_key=True)
+
+
+class TicketType(Base):
+    __tablename__ = 'types'
+
+    type_ticket = Column(Text, primary_key=True)
+
+
+class Ticket(Base):
+    __tablename__ = "tickets"
+
+    ticket_id = Column(BigInteger, primary_key=True)
+    status = Column(Text, ForeignKey('status.status_name'), nullable=False)
+    type = Column(Text, ForeignKey('types.type_ticket'), nullable=False)
+    tgchat_id = Column(BigInteger, nullable=False)
+    fullname = Column(Text, nullable=True)
+    wish_group = Column(Text, nullable=True)
+    photo = Column(Text, nullable=True)
+    message = Column(Text, nullable=True)
+    created_at = Column(TIMESTAMP(timezone=False), nullable=False)
+    updated_at = Column(TIMESTAMP(timezone=False), nullable=False)
+
+    status_ref = relationship('Status', backref='tickets')
+    type_ref = relationship('TicketType', backref='tickets')

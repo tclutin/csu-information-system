@@ -19,10 +19,26 @@ async def create_user(
         user_service: UserService = Depends(get_user_service),
         user=Depends(validate_auth_admin)
 ):
-
     try:
         await user_service.create(dto)
         return {"message": "User created successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@router.delete("/{username}", response_model=None, status_code=HTTPStatus.OK)
+async def delete_user(
+        username: str,
+        user_service: UserService = Depends(get_user_service),
+        user=Depends(validate_auth_admin)
+):
+    try:
+        await user_service.delete(username)
+        return {"message": "User deleted successfully"}
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except HTTPException as e:
@@ -36,26 +52,7 @@ async def get_users(
         user_service: UserService = Depends(get_user_service),
         user=Depends(validate_auth_admin)
 ):
-
     try:
         return await user_service.get_all()
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-
-
-@router.delete("/{username}", response_model=None, status_code=HTTPStatus.OK)
-async def delete_user(
-        username: str,
-        user_service: UserService = Depends(get_user_service),
-        user=Depends(validate_auth_admin)
-):
-
-    try:
-        await user_service.delete(username)
-        return {"message": "User deleted successfully"}
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except HTTPException as e:
-        raise e
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

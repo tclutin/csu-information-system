@@ -48,6 +48,18 @@ async def delete_group(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
+@router.get("/{shortname}", response_model=None, status_code=HTTPStatus.OK)
+async def get_group_by_shortname(
+        shortname: str,
+        group_service: GroupService = Depends(get_group_service),
+        user=Depends(validate_auth_admin)
+):
+    try:
+        return await group_service.get_by_shortname(shortname)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
 @router.get("", response_model=None, status_code=HTTPStatus.OK)
 async def get_groups(
         group_service: GroupService = Depends(get_group_service),

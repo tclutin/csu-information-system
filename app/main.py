@@ -3,9 +3,6 @@ from contextlib import asynccontextmanager
 import uvicorn
 
 from fastapi import FastAPI
-from fastapi.openapi.utils import get_openapi
-from fastapi.security import OAuth2PasswordBearer, HTTPBearer
-from pygments.lexers import q
 from starlette.middleware.cors import CORSMiddleware
 
 from api.auth_handler import router as auth_router

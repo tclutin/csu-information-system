@@ -7,7 +7,6 @@ from starlette import status
 from starlette.responses import StreamingResponse
 
 from api.depends import validate_auth_admin, get_student_service
-from dto.student_dto import CreateStudentDTO
 from services.student_service import StudentService
 
 router = APIRouter()

@@ -28,13 +28,13 @@ class StudentService:
         if student is not None:
             raise ValueError('Student already exists with this tgchat_id')
 
-        file_name = await self.upload_service.upload_file(dto.student_card)
+        #file_name = await self.upload_service.upload_file(dto.student_card)
 
         student = Student(
             tgchat_id=dto.tgchat_id,
             group_id=dto.group_id,
             fullname=dto.fullname,
-            student_card=file_name,
+            student_card=dto.student_card,
         )
 
         await self.group_service.update_user_count(group.group_id)

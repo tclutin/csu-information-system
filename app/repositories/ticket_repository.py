@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from sqlalchemy import select, update
+from sqlalchemy import select, update, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from infrastructure.models import Student, Ticket
@@ -46,7 +46,12 @@ class TicketRepository:
         result = await self.session.execute(statement)
         return result.scalar()
 
-    async def get_all(self) -> List[Ticket]:
+    async def get_active_by_tgchat_id(self, tgchat_id: int) -> Optional[Ticket]:
+        statement = select(Ticket).where(and_(Ticket.tgchat_id == tgchat_id, Ticket.status == "open"))
+        result = await self.session.execute(statement)
+        return result.scalar()
+
+    async def get_all_open(self) -> List[Ticket]:
         statement = select(Ticket).where(Ticket.status == "open")
         result = await self.session.execute(statement)
         tickets = result.scalars().all()

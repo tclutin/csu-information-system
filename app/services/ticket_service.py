@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from dto.message_dto import CreateMessageDTO
 from dto.student_dto import CreateStudentDTO
@@ -18,6 +18,10 @@ class TicketService:
         self.upload_service = upload_service
 
     async def create(self, dto: CreateTicketDTO) -> Ticket:
+        active_ticket = await self.get_active_by_tgchat_id(dto.tgchat_id)
+        if active_ticket is not None:
+            raise ValueError('У вас уже открыт активный тикет. Пожалуйста, дождитесь ответа.')
+
         if dto.type_ticket not in ["verification", "request"]:
             raise ValueError("ticket's type can be verification or request")
 
@@ -30,6 +34,14 @@ class TicketService:
 
             if dto.photo is None:
                 raise ValueError("phono is required for verification")
+
+            group = await self.student_service.group_service.get_by_shortname(dto.wish_group)
+            if group is None:
+                raise ValueError("group not found")
+
+            student = await self.student_service.get_by_tgchat_id(dto.tgchat_id)
+            if student is not None:
+                raise ValueError("Хорошая попытка. Удачи!")
 
             dto.message = None
 
@@ -83,6 +95,9 @@ class TicketService:
         if ticket.status == "closed":
             raise ValueError("ticket is already closed")
 
+        if ticket.type != "verification":
+            raise ValueError("type must be verification")
+
         ticket.status = "closed"
         ticket = await self.ticket_repository.update(ticket)
 
@@ -96,9 +111,6 @@ class TicketService:
             .get_by_shortname(ticket.wish_group)
         )
 
-        if group is None:
-            raise ValueError("group is invalid")
-
         dto = CreateStudentDTO(
             fullname=ticket.fullname,
             group_id=group.group_id,
@@ -108,5 +120,8 @@ class TicketService:
 
         await self.student_service.create(dto)
 
-    async def get_all(self) -> List[Ticket]:
-        return await self.ticket_repository.get_all()
+    async def get_active_by_tgchat_id(self, tgchat_id: int) -> Optional[Ticket]:
+        return await self.ticket_repository.get_active_by_tgchat_id(tgchat_id)
+
+    async def get_all_open(self) -> List[Ticket]:
+        return await self.ticket_repository.get_all_open()

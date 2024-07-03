@@ -85,12 +85,24 @@ async def accept_ticket(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@router.get("", response_model=None, status_code=HTTPStatus.OK)
-async def get_tickets(
+@router.get("/{tgchat_id}/active", response_model=None, status_code=HTTPStatus.OK)
+async def get_active_ticket(
+        tgchat_id: int,
         ticket_service: TicketService = Depends(get_ticket_service),
         #user=Depends(validate_auth_admin)
 ):
     try:
-        return await ticket_service.get_all()
+        return await ticket_service.get_active_by_tgchat_id(tgchat_id)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@router.get("/open", response_model=None, status_code=HTTPStatus.OK)
+async def get_all_open_tickets(
+        ticket_service: TicketService = Depends(get_ticket_service),
+        #user=Depends(validate_auth_admin)
+):
+    try:
+        return await ticket_service.get_all_open()
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

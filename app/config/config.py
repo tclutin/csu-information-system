@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     jwt_secret_key: str
     jwt_access_token_expire_minutes: int
 
+    faqfinder_service_url: str
+
     class Config:
         env_file = ".env"
 

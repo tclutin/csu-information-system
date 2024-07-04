@@ -2,14 +2,16 @@ from datetime import datetime
 from typing import Optional, List
 
 from dto.faq_dto import CreateFAQDTO, CreateFAQListDTO
+from infrastructure.faqfinder import FAQFinderService
 from infrastructure.models import FAQ
 from repositories import faq_repository
 from repositories.faq_repository import FAQRepository
 
 
 class FAQService:
-    def __init__(self, faq_repository: FAQRepository):
+    def __init__(self, faq_repository: FAQRepository, faqfinder_service: FAQFinderService):
         self.faq_repository = faq_repository
+        self.faqfinder_service = faqfinder_service
 
     # FAQService methods
     async def create(self, dto: CreateFAQListDTO) -> List[FAQ]:
@@ -27,7 +29,12 @@ class FAQService:
             )
             faqs.append(faq)
 
-        return await self.faq_repository.create(faqs)
+        faqs = await self.faq_repository.create(faqs)
+
+        #можно было сразу напрямую отправлять.. дурак я
+        await self.faqfinder_service.update_faqs()
+
+        return faqs
 
     async def delete(self, faq_id: int) -> None:
         faq = await self.get_by_id(faq_id)

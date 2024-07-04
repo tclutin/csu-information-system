@@ -4,6 +4,7 @@ from passlib.exc import InvalidTokenError
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
+from infrastructure.faqfinder import FAQFinderService
 from infrastructure.postgres import postgres_client
 from repositories.department_repository import DepartmentRepository
 from repositories.faq_repository import FAQRepository
@@ -27,6 +28,10 @@ http_bearer = HTTPBearer()
 
 def get_upload_service() -> UploadService:
     return UploadService()
+
+
+def get_faqfinder_service() -> FAQFinderService:
+    return FAQFinderService()
 
 
 def get_user_repository(session: AsyncSession = Depends(postgres_client.session_getter)) -> UserRepository:
@@ -67,8 +72,12 @@ def get_faq_repository(session: AsyncSession = Depends(postgres_client.session_g
     return FAQRepository(session)
 
 
-def get_faq_service(faq_repository: FAQRepository = Depends(get_faq_repository)) -> FAQService:
-    return FAQService(faq_repository)
+def get_faq_service(
+        faq_repository: FAQRepository = Depends(get_faq_repository),
+        faqfinder_service: FAQFinderService = Depends(get_faqfinder_service)
+) -> FAQService:
+
+    return FAQService(faq_repository, faqfinder_service)
 
 
 def get_student_repository(session: AsyncSession = Depends(postgres_client.session_getter)) -> StudentRepository:

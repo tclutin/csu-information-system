@@ -180,9 +180,6 @@ def find_question_answers_oldversion(input_question, question_vectors, pack, top
     return results
 
 
-
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await initialize_service()
@@ -195,7 +192,8 @@ app = FastAPI(lifespan=lifespan)
 @app.post("/query", response_model=None, status_code=HTTPStatus.OK)
 def search_faq(query: QueryModel):
     try:
-        results = find_question_answers_oldversion(query.message, question_vectors, faqs, top_k=query.top_k, min_similarity=query.min_similarity)
+        results = find_question_answers_oldversion(query.message, question_vectors, faqs, top_k=query.top_k,
+                                                   min_similarity=query.min_similarity)
         return results
     except HTTPException as e:
         return {"error": str(e)}
